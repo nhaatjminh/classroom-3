@@ -4,6 +4,7 @@ import { NavLink, useParams} from "react-router-dom"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navbar } from "react-bootstrap"
 import './index.css'
+
 const Grades = () => {
     const [loadFirst, setLoadFirst] = useState(true);
     const [role, setRole] = useState("student");
@@ -175,7 +176,7 @@ const Grades = () => {
                         Detail
                     </NavLink>
                     <NavLink className="nav-link" to={memberURL}>
-                        People
+                        Member
                     </NavLink>
                     <NavLink className="nav-link" to={listAssignmentURL}>
                         List Assignment

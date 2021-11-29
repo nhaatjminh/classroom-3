@@ -5,6 +5,7 @@ import { Form, Modal, Row, Col  } from 'react-bootstrap';
 import { Card} from 'react-bootstrap';
 // import {Link} from 'react-router-dom';
 import './index.css';
+import AsyncDownloadButton from '../AsyncDownloadButton';
 
 const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) => {
     const [show, setShow] = useState(false);
@@ -110,13 +111,12 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
             <Card.Text> {dataAssignment.deadline} </Card.Text>   
         </Card.Body>
         <Card.Footer className="text-center">
-            <div className="footer-createAssignBtn text-center">
+            <div className="footer-createAssignBtn text-center" hidden={!(role === 'teacher')}>
                 <button className="btn btn-danger btnDeleteAssign"
-                        onClick={deleteAssignment}
-                        hidden={!(role === 'teacher')}> Delete </button>
+                        onClick={deleteAssignment}> Delete </button>
                 <button className="btn btn-info btnDeleteAssign" 
-                        onClick={onHandleModalShow}
-                        hidden={!(role === 'teacher')}> Update </button>
+                        onClick={onHandleModalShow}> Update </button>
+                <AsyncDownloadButton assignId={dataAssignment.id}/>
             </div>
         </Card.Footer>
 
