@@ -1,0 +1,27 @@
+.modal-content{
+    width: 130%;
+    margin-left: -15%;
+} 
+
+.footer-createAssignBtn {
+    width: 100%;
+    margin: 1%;
+}
+
+
+.btnCreateAssign {
+    width: 25%;
+}
+
+.btnDeleteAssign {
+    display: inline-block;
+    width: 15%;
+    margin: 1%;
+}
+
+.btn-new {
+    margin-left: 1%;
+}
+.list-assignment {
+    margin-top: 2%;
+}

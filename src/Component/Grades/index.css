@@ -1,0 +1,13 @@
+th, td {
+    text-align : center;
+    padding: 1.5rem;
+    border: 1px solid black;
+}
+thead tr {
+    background-color: gray;
+    color: white;
+}
+table {
+    margin-left: 1rem;
+    margin-top: 1rem;
+}

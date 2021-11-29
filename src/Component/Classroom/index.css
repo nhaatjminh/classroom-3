@@ -1,0 +1,27 @@
+.classroom {
+    width: 20% !important;
+    display: inline-block !important;
+    margin: 2% 2% !important;
+}
+
+.linkBtn {
+    font: bold 15px Arial;
+    text-decoration: none;
+    background-color: rgb(187, 233, 187);
+    color: black;
+    padding: 5px 10px 5px 10px;
+    border-top: 2px solid #CCCCCC;
+    border-right: 2px solid #333333;
+    border-bottom: 2px solid #333333;
+    border-left: 2px solid #CCCCCC;
+    box-shadow: 1px 1px 1px #cac2c2;
+    border-radius: 5px;
+}
+
+.teacher{
+    font: 14px Arial;
+}
+
+.description {
+    font: 12px Arial;
+}
