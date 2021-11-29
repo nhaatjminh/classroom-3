@@ -34,6 +34,92 @@ const Grades = () => {
         .catch(error => console.log('error', error));
     }
     
+    const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
+    const memberURL = '/classes/members/' + params.id;
+    const detailURL = '/classes/detail/' + params.id;
+    const renderRow = (grade, listAssignMent) => {
+        var listData = [];
+        console.log(grade);
+        console.log(listAssignMent);
+        for (let index = 0; index <listAssignMent.length; index++) {   
+            let flag = false;
+            for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
+                if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
+                    listData.push(<td>{grade[indexGrade].grade}</td>)
+                    flag = true;
+                }
+            }
+            if (!flag) {
+                listData.push(<td> - </td>)
+            }
+        }
+
+        return listData;
+    }
+    const renderTableData = (students, listAssignMent) => {
+        const listData = [];
+        students.map((student, index) => {
+            listData.push(
+            <tbody key={student.studentid}>
+                <tr>
+                    <td>{student.studentid} : {student.name}</td>
+                    {renderRow(student.grade, listAssignMent)}
+                </tr>
+            </tbody>
+          )
+        })
+        setDataTable(listData);
+    }
+    const checkExistsStudentInGradeBoard = (listStudent, student) => {
+        for (let index = 0; index < listStudent.length; index++) {
+            if (listStudent[index].studentid === student.studentid) return true;
+        }
+        return false;
+    }
+    const loadGradeBoard = (listAssignMent) => {
+        let myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        let requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        fetch(process.env.REACT_APP_API_URL + "grades/" + params.id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            
+            let listStudent = [];
+            for (let index = 0; index < result.length; index++) {
+                const temp = {
+                    studentid: result[index].student_id,
+                    name: result[index].name
+                }
+                if (checkExistsStudentInGradeBoard(listStudent, temp)) {
+                    continue;
+                };
+                let grade = [];
+                for (let indexStudent = 0; indexStudent < result.length; indexStudent++) {   
+                    if (result[indexStudent].student_id === result[index].student_id)
+                    {
+                        let objectGrade = {
+                            assignmentID: result[indexStudent].assignment_id,
+                            grade: result[indexStudent].grade
+                        }
+                        grade.push(objectGrade);
+                    }
+                }
+                temp.grade = grade;
+                listStudent.push(temp);
+            }
+            renderTableData(listStudent, listAssignMent);
+        })
+        .catch(error => {
+            console.log('error', error);
+        })
+    }
+    
     const getListAssignment = () => {
         let myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
@@ -60,52 +146,32 @@ const Grades = () => {
                     {ele.grade}/{totalGrade}
                 </th>))
                 header.push(<th className="w-100"></th>)
+                
+                loadGradeBoard(result);
             }
             setHeader(header);
+            
         })
         .catch(error => {
             console.log('error', error);
         })
     }
     
-    const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
-    const memberURL = '/classes/members/' + params.id;
-    const detailURL = '/classes/detail/' + params.id;
-    const renderTableData = () => {
-        const students= [
-               { idStudent: 5, grades1: '10', grades2: '5'  },
-               { idStudent: 15, grades1: '8', grades2: '5'  },
-               { idStudent: 25, grades1: '7', grades2: '5'   },
-               { idStudent: 35, grades1: '6', grades2: '5'   }
-            ];
-        const listData = [];
-        students.map((student, index) => {
-            listData.push(
-            <tbody key={student.idStudent}>
-                <tr>
-                    <td>{student.idStudent}</td>
-                    <td>{student.grades1}</td>
-                    <td>{student.grades2}</td>
-                    <td className="w-100"></td>
-                </tr>
-            </tbody>
-          )
-        })
-        setDataTable(listData);
-    }
     if (loadFirst) {
         getListAssignment();
         getRole();
         setLoadFirst(false);
         
-        renderTableData();
     }
+    
     return(
             <div>
+                
                 <Navbar bg="dark" variant="dark">
                     <Navbar.Toggle />
                     <Navbar.Collapse className="justify-content-end">
                     <NavLink className="nav-link" to={detailURL} >
+                        
                         Detail
                     </NavLink>
                     <NavLink className="nav-link" to={memberURL}>
