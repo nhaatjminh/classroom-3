@@ -10,10 +10,15 @@ const GradeOfStudent = ({dataGrade}) => {
 
     const onChangeHandler = (e) => setGrade(e.target.value);
 
-    const onBlurHandler = async () => {
+    const onBlurHandler = (e) => {
+        e.preventDefault();
+        console.log(dataGrade.student_id + ": " + grade)
+
         // console.log("huhu");
         // var myHeaders = new Headers();
         // myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+        // myHeaders.append("Content-Type", "application/json");
+
 
         // var raw = JSON.stringify({
         //     "student_id": dataGrade.student_id,
@@ -27,8 +32,8 @@ const GradeOfStudent = ({dataGrade}) => {
         //     redirect: 'follow'
         // };
 
-        // await fetch(process.env.REACT_APP_API_URL + "grades/update/" + params.id + "/" + dataGrade.assignment_id, requestOptions)
-        // .then(response => response.text())
+        // fetch(process.env.REACT_APP_API_UR + "grades/update/" + params.id + "/" + dataGrade.assignment_id, requestOptions)
+        // .then(response => response.json())
         // .then(result => {
         //     console.log("update grade successful");
         // })
