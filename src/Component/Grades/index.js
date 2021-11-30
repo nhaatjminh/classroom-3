@@ -115,7 +115,7 @@ const Grades = () => {
             listData.push(
             <tbody key={student.studentid}>
                 <tr>
-                    <td>{student.name}: {student.studentid}
+                    <td>{student.name}
                     
                         <br></br>
                         <button className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}}>Show</button>
