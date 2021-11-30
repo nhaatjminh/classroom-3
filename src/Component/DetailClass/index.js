@@ -11,6 +11,7 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import {Typography} from '@material-ui/core';
 
+import { Card} from 'react-bootstrap';
 
 const DetailClass = () => {
     const [data, setData] = useState({
@@ -28,6 +29,8 @@ const DetailClass = () => {
     const [email, setEmail] = useState("");
     const [roleInvite, setRoleInvite] = useState("Student");
     const [userRole, setUserRole] = useState("student");
+    
+    const [assignment, setAssignment] = useState([]);
     let params = useParams();
     const getDetail = async (id) => {
         var myHeaders = new Headers();
@@ -168,18 +171,45 @@ const DetailClass = () => {
         await sendEmail(email, link, roleInvite);
     }
 
+    const getListAssignment = () => {
+        let myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        let requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        fetch(process.env.REACT_APP_API_URL + "assignment/" + params.id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            setAssignment(result);
+        })
+        .catch(error => {
+            console.log('error', error);
+        })
+    }
     if (loadFirst) {
         getDetail(params.id);
         getInviteLink(params.id, 'student');
         getInviteLink(params.id, 'teacher');
         getRole();
+        getListAssignment()
         setLoadFirst(false);
     }
-
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
     const memberURL = '/classes/members/' + params.id;
     const gradesStructure = '/grades/' + params.id;
-    
+    const renderGradeStructure = () => {
+        let gradestructure = [];
+        console.log(assignment);
+        for (let index = 0; index < assignment.length; index++) {
+            gradestructure.push(<Card.Text> {assignment[index].topic} : {assignment[index].grade}đ </Card.Text>)
+        }
+        return gradestructure;
+    }
     return(
             <div>
                 <Navbar bg="dark" variant="dark">
@@ -211,17 +241,32 @@ const DetailClass = () => {
                     <h1 className="text-center">
                         Class: {data.name}
                     </h1>
-                    <div className="mt-3">
-                        ID: {data.id}
-                    </div>
-                    <div className="mt-3">
-                        Class: {data.name}
-                    </div>
-                    <div className="mt-3">
-                        Creator: {data.creator}
-                    </div>
-                    <div className="mt-3">
-                        Description: {data.description}
+                    <div className="row">
+                        <div className="col-6 m-2">
+                            <div className="mt-3">
+                                ID: {data.id}
+                            </div>
+                            <div className="mt-3">
+                                Class: {data.name}
+                            </div>
+                            <div className="mt-3">
+                                Creator: {data.creator}
+                            </div>
+                            <div className="mt-3">
+                                Description: {data.description}
+                            </div>
+                        </div>
+                        <div className="col-5 m-2">
+                        <Card className="w-100">
+                            <Card.Header as= "h5" className="text-center">Grades Structure</Card.Header>
+                            <Card.Body>            
+                                {assignment.length > 0 ?
+                                renderGradeStructure(): ""}   
+                            </Card.Body>
+                            <Card.Footer className="text-center">
+                            </Card.Footer>
+                        </Card>
+                        </div>
                     </div>
                     
                 </div>
