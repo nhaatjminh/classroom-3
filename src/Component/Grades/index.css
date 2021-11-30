@@ -11,3 +11,14 @@ table {
     margin-left: 1rem;
     margin-top: 1rem;
 }
+.headerStudentID {
+    padding-left: 5rem;
+    padding-right: 5rem;
+}
+.btn-showIn4 {
+    color: white;
+    background-color: gray;
+    margin-top: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}

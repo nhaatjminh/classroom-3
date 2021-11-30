@@ -2,15 +2,23 @@
 import React, { useState} from 'react';
 import { NavLink, useParams} from "react-router-dom"
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { Navbar } from "react-bootstrap"
+import { Navbar, Modal } from "react-bootstrap"
 import './index.css'
 import GradeOfStudent from '../GradeOfStudent';
+import Select from '@mui/material/Select';
+import {Typography} from '@material-ui/core';
 const Grades = () => {
     const [loadFirst, setLoadFirst] = useState(true);
     const [role, setRole] = useState("student");
     const [dataTable, setDataTable] = useState([]);
     const [header, setHeader] = useState([]);
-    const [studentsListFromGetMember, setStudentsListFromGetMember] = useState([]);
+    const [showDialog, setShowDialog] = useState(false);
+    const [dataMappingStudent, setDataMappingStudent] = useState({
+        studentID: '',
+        name: '',
+        phone: '',
+        address: ''
+    })
     let params = useParams();
     const getRole = async () => {
         var myHeaders = new Headers();
@@ -68,10 +76,11 @@ const Grades = () => {
             redirect: 'follow'
         };
 
-        await fetch(process.env.REACT_APP_API_URL + "classes/members/" + idClass, requestOptions)
+        await fetch(process.env.REACT_APP_API_URL + "grades/members/" + idClass, requestOptions)
         .then(response => response.json())
         .then(result => {
-            renderTableData(listStudent, listAssignMent, result.students);
+            renderTableData(listStudent, listAssignMent, result);
+            
         })
         .catch(error => console.log('error', error));
     }
@@ -80,7 +89,7 @@ const Grades = () => {
         for (let indexListMember= 0; indexListMember < listAllStudentOfClass.length; indexListMember++) {
             let flag = false;
             for (let indexStudent = 0; indexStudent < students.length; indexStudent++) {
-                if (listAllStudentOfClass[indexListMember].id === students[indexStudent].studentid){
+                if (listAllStudentOfClass[indexListMember].studentID === students[indexStudent].studentid){
                     newList.push(students[indexStudent]);
                     flag = true;
                     break;
@@ -88,7 +97,7 @@ const Grades = () => {
             }
             if (!flag) {
                 const newObj = {
-                    studentid : listAllStudentOfClass[indexListMember].id,
+                    studentid : listAllStudentOfClass[indexListMember].studentID,
                     name : listAllStudentOfClass[indexListMember].name,
                     grade: []
                 }
@@ -106,7 +115,11 @@ const Grades = () => {
             listData.push(
             <tbody key={student.studentid}>
                 <tr>
-                    <td>{student.studentid} : {student.name}</td>
+                    <td>{student.name}
+                    
+                        <br></br>
+                        <button className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}}>Show</button>
+                    </td>
                     {renderRow(student.grade, listAssignMent)}
                 </tr>
             </tbody>
@@ -134,7 +147,6 @@ const Grades = () => {
         fetch(process.env.REACT_APP_API_URL + "grades/" + params.id, requestOptions)
         .then(response => response.json())
         .then(result => {
-            
             let listStudent = [];
             for (let index = 0; index < result.length; index++) {
                 const temp = {
@@ -184,7 +196,7 @@ const Grades = () => {
                 totalGrade += result[index].grade;
             }
             if (result) {
-                header.push(<th key={-1}> Student ID </th>);
+                header.push(<th key={-1} className="headerStudentID"> Student ID </th>);
                 result.map((ele, key) => header.push(<th key={key}>
                     {ele.topic}
                     <br></br>
@@ -202,6 +214,40 @@ const Grades = () => {
         })
     }
     
+    const onHandleShow = async (id) => {
+        setShowDialog(true);
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        await fetch(process.env.REACT_APP_API_URL + "grades/onemember/" + id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            setDataMappingStudent({
+                studentID: result[0].studentID,
+                name: result[0].name,
+                phone: result[0].phone,
+                address: result[0].address
+            });
+            console.log(dataMappingStudent);
+        })
+        .catch(error => console.log('error', error));
+    }
+    const onHandleClose = () => {
+        setShowDialog(false);
+        setDataMappingStudent({
+            studentID: '',
+            name: '',
+            phone: '',
+            address: ''
+        });
+    }
     if (loadFirst) {
         getListAssignment();
         getRole();
@@ -241,6 +287,20 @@ const Grades = () => {
                     </thead>
                     {dataTable}
                 </table>
+                <div>
+                    <Modal show={showDialog} onHide={onHandleClose}>
+                        <Modal.Header closeButton>
+                        <Modal.Title>Information</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <h5>Student ID: {dataMappingStudent.studentID}</h5>
+                            <h5>Name: {dataMappingStudent.name}</h5>
+                            <h5>Phone: {dataMappingStudent.phone}</h5>
+                            <h5>Address: {dataMappingStudent.address}</h5>
+                        </Modal.Body>
+                        
+                    </Modal>
+                </div>
             </div>
         
         )
