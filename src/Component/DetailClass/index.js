@@ -179,6 +179,7 @@ const DetailClass = () => {
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
     const memberURL = '/classes/members/' + params.id;
     const gradesStructure = '/grades/' + params.id;
+    
     return(
             <div>
                 <Navbar bg="dark" variant="dark">
@@ -195,7 +196,7 @@ const DetailClass = () => {
                         Detail
                     </NavLink>
                     <NavLink className="nav-link" to={memberURL}>
-                        People
+                        Member
                     </NavLink>
                     <NavLink className="nav-link" to={listAssignmentURL}>
                         List Assignment

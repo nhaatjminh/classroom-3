@@ -9,6 +9,7 @@ import Avatar from '@mui/material/Avatar';
 import { Grid } from "@material-ui/core";
 import PersonIcon from '@mui/icons-material/Person';
 import { green } from '@mui/material/colors';
+import { CSVLink } from "react-csv";
 
 export default function MembersList() {
     const [students, setStudents] = useState([]);
@@ -82,31 +83,47 @@ export default function MembersList() {
         getRole();
         setLoadFirst(false);
     }
+
+    const headers = [
+        { label: 'Student ID', key: 'id' },
+        { label: 'Fullname', key: 'name' }
+    ]
+
+    const exportExcel = {
+        filename: 'Member.csv',
+        headers: headers,
+        data: students
+    }
+    
     const gradesStructure = '/grades/' + params.id;
     const detailURL = '/classes/detail/' + params.id;
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
+
     return (
       <div>
           <Navbar bg="dark" variant="dark">
-                    
-                    {/* <button className="btn btn-success backbtn" onClick={this.props.backToList}> Back </button> */}
-                    <Navbar.Toggle />
-                    <Navbar.Collapse className="justify-content-end">
-                    <NavLink className="nav-link" to={detailURL} >
-                        Detail
-                    </NavLink>
-                    <NavLink className="nav-link" to='#'>
-                        People
-                    </NavLink>
-                    <NavLink className="nav-link" to={listAssignmentURL}>
-                        List Assignment
-                    </NavLink>
-                    <NavLink className="nav-link" to={gradesStructure} hidden={!(role === 'teacher')}>
-                        Grades Structure
-                    </NavLink>
-                    </Navbar.Collapse>
-                </Navbar>
-        
+            <Navbar.Toggle />
+
+            <div className="invitebtn" hidden={!(role === "teacher")}>
+                <CSVLink {...exportExcel}> Download Student List </CSVLink>
+                {/* <button className="btn btn-success" onClick={}> Invite </button> */}
+            </div>
+
+            <Navbar.Collapse className="justify-content-end">
+            <NavLink className="nav-link" to={detailURL} >
+                Detail
+            </NavLink>
+            <NavLink className="nav-link" to='#'>
+                Member
+            </NavLink>
+            <NavLink className="nav-link" to={listAssignmentURL}>
+                List Assignment
+            </NavLink>
+            <NavLink className="nav-link" to={gradesStructure} hidden={!(role === 'teacher')}>
+                Grades Structure
+            </NavLink>
+            </Navbar.Collapse>
+        </Navbar>
 
         <Grid align='center'>
             

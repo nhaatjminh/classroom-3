@@ -114,7 +114,7 @@ const ListAssignment = () => {
 
     const onDeleteSuccess = (idAssign) => {
         var newArrayAssignment = $.grep(arrayAssignment, function(e){ 
-            return e.id != idAssign; 
+            return e.id !== idAssign; 
        }); 
         setArrayAssignment(newArrayAssignment);
     }
@@ -200,7 +200,7 @@ const ListAssignment = () => {
                     Detail
                 </NavLink>
                 <NavLink className="nav-link" to={memberURL}>
-                    People
+                    Member
                 </NavLink>
                 <NavLink className="nav-link" to='#'>
                     List Assignment

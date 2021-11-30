@@ -220,7 +220,7 @@ const Grades = () => {
                         Detail
                     </NavLink>
                     <NavLink className="nav-link" to={memberURL}>
-                        People
+                        Member
                     </NavLink>
                     <NavLink className="nav-link" to={listAssignmentURL}>
                         List Assignment
