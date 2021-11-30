@@ -49,18 +49,32 @@ const Grades = () => {
     const detailURL = '/classes/detail/' + params.id;
     //5th
     const renderRow = (grade, listAssignMent) => {
+        console.log("ok " + grade);
         var listData = [];
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
+            
             for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
                 if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
-                    listData.push(<GradeOfStudent key={index} dataGrade={grade[indexGrade].grade}></GradeOfStudent>)
+                    let dataGrade = {
+                        assignment_id: grade[indexGrade].assignmentID,
+                        student_id: grade[indexGrade].studentID,
+                        grade: grade[indexGrade].grade
+                    }
+                    
+                    listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
                     flag = true;
                 }
+                if (!flag && indexGrade === grade.length - 1) {
+                    let dataGrade = {
+                        assignment_id: grade[indexGrade].assignmentID,
+                        student_id: grade[indexGrade].studentID,
+                        grade: null
+                    }
+                    listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
+                }
             }
-            if (!flag) {
-                listData.push(<GradeOfStudent key={index} dataGrade={" - "}></GradeOfStudent>)
-            }
+            
         }
 
         return listData;
