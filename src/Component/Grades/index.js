@@ -4,11 +4,13 @@ import { NavLink, useParams} from "react-router-dom"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navbar } from "react-bootstrap"
 import './index.css'
+import GradeOfStudent from '../GradeOfStudent';
 const Grades = () => {
     const [loadFirst, setLoadFirst] = useState(true);
     const [role, setRole] = useState("student");
     const [dataTable, setDataTable] = useState([]);
     const [header, setHeader] = useState([]);
+    const [studentsListFromGetMember, setStudentsListFromGetMember] = useState([]);
     let params = useParams();
     const getRole = async () => {
         var myHeaders = new Headers();
@@ -37,26 +39,68 @@ const Grades = () => {
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
     const memberURL = '/classes/members/' + params.id;
     const detailURL = '/classes/detail/' + params.id;
+    //5th
     const renderRow = (grade, listAssignMent) => {
         var listData = [];
-        console.log(grade);
-        console.log(listAssignMent);
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
             for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
                 if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
-                    listData.push(<td>{grade[indexGrade].grade}</td>)
+                    listData.push(<GradeOfStudent key={index} dataGrade={grade[indexGrade].grade}></GradeOfStudent>)
                     flag = true;
                 }
             }
             if (!flag) {
-                listData.push(<td> - </td>)
+                listData.push(<GradeOfStudent key={index} dataGrade={" - "}></GradeOfStudent>)
             }
         }
 
         return listData;
     }
-    const renderTableData = (students, listAssignMent) => {
+    // third
+    const getMembers = async (idClass, listStudent, listAssignMent) => {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        await fetch(process.env.REACT_APP_API_URL + "classes/members/" + idClass, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            renderTableData(listStudent, listAssignMent, result.students);
+        })
+        .catch(error => console.log('error', error));
+    }
+    const checkExistStudentInStudentsList = (students, listAllStudentOfClass) => {
+        const newList = [];
+        for (let indexListMember= 0; indexListMember < listAllStudentOfClass.length; indexListMember++) {
+            let flag = false;
+            for (let indexStudent = 0; indexStudent < students.length; indexStudent++) {
+                if (listAllStudentOfClass[indexListMember].id === students[indexStudent].studentid){
+                    newList.push(students[indexStudent]);
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                const newObj = {
+                    studentid : listAllStudentOfClass[indexListMember].id,
+                    name : listAllStudentOfClass[indexListMember].name,
+                    grade: []
+                }
+                newList.push(newObj);
+            }  
+        }
+        return newList;
+        
+    }
+    //4th
+    const renderTableData = (students, listAssignMent, listAllStudentOfClass) => {
+        students = checkExistStudentInStudentsList(students, listAllStudentOfClass);
         const listData = [];
         students.map((student, index) => {
             listData.push(
@@ -76,6 +120,7 @@ const Grades = () => {
         }
         return false;
     }
+    //second
     const loadGradeBoard = (listAssignMent) => {
         let myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
@@ -113,13 +158,13 @@ const Grades = () => {
                 temp.grade = grade;
                 listStudent.push(temp);
             }
-            renderTableData(listStudent, listAssignMent);
+            getMembers(params.id, listStudent, listAssignMent);
         })
         .catch(error => {
             console.log('error', error);
         })
     }
-    
+    // first
     const getListAssignment = () => {
         let myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
