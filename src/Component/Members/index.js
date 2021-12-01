@@ -26,7 +26,7 @@ export default function MembersList() {
         headers: headers,
         data: students
     }
-    
+
     let params = useParams();
 
     const getMembers = async (idClass) => {
