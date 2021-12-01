@@ -22,3 +22,11 @@ table {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+.dontHaveAccount {
+    background-color: gray;
+    color: black;
+}
+.dontHaveAccount .inputGrade {
+    background-color: gray;
+    color: black;
+}

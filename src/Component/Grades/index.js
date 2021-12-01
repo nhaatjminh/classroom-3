@@ -49,7 +49,7 @@ const Grades = () => {
     const detailURL = '/classes/detail/' + params.id;
     //5th
     const renderRow = (grade, listAssignMent , studentid) => {
-        
+        console.log(grade);
         var listData = [];
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
@@ -86,17 +86,22 @@ const Grades = () => {
         await fetch(process.env.REACT_APP_API_URL + "grades/members/" + idClass, requestOptions)
         .then(response => response.json())
         .then(result => {
+            
             renderTableData(listStudent, listAssignMent, result);
             
         })
         .catch(error => console.log('error', error));
     }
-    const checkExistStudentInStudentsList = (students, listAllStudentOfClass) => {
+    const checkExistStudentInStudentsList = (students, listAllStudentOfClass, listStudentHaveAccount) => {
         const newList = [];
+        
+        console.log(students);
+        console.log(listAllStudentOfClass);
         for (let indexListMember= 0; indexListMember < listAllStudentOfClass.length; indexListMember++) {
             let flag = false;
             for (let indexStudent = 0; indexStudent < students.length; indexStudent++) {
-                if (listAllStudentOfClass[indexListMember].studentID === students[indexStudent].studentid){
+                if (listAllStudentOfClass[indexListMember].studentID == students[indexStudent].studentid){
+                    students[indexStudent].studentid += '';
                     newList.push(students[indexStudent]);
                     flag = true;
                     break;
@@ -104,37 +109,64 @@ const Grades = () => {
             }
             if (!flag) {
                 const newObj = {
-                    studentid : listAllStudentOfClass[indexListMember].studentID,
+                    studentid : listAllStudentOfClass[indexListMember].studentID + '',
                     name : listAllStudentOfClass[indexListMember].name,
                     grade: []
                 }
-                newList.push(newObj);
+                newList.push(newObj); 
             }  
         }
+        for (let indexStudents= 0; indexStudents < listStudentHaveAccount.length; indexStudents++) {
+            for (let indexNewList = 0; indexNewList < newList.length; indexNewList++) {
+                if (newList[indexNewList].studentid == listStudentHaveAccount[indexStudents].studentID){
+                    newList[indexNewList].haveAccount = true;
+                }
+            }
+        }
+        
         return newList;
         
     }
     //4th
-    const renderTableData = (students, listAssignMent, listAllStudentOfClass) => {
-        
-        students = checkExistStudentInStudentsList(students, listAllStudentOfClass);
-        
-        const listData = [];
-        students.map((student, index) => {
-            listData.push(
-            <tbody key={student.studentid}>
-                <tr>
-                    <td>{student.studentid} - {student.name}
-                    
-                        <br></br>
-                        <button className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}}>Show</button>
-                    </td>
-                    {renderRow(student.grade, listAssignMent, student.studentid)}
-                </tr>
-            </tbody>
-          )
+    const renderTableData = async (students, listAssignMent, listAllStudentOfClass) => {
+        //get member dont join to class
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+
+        var requestOptions = {
+            method: 'GET',
+            headers: myHeaders,
+            redirect: 'follow'
+        };
+
+        await fetch(process.env.REACT_APP_API_URL + "grades/membersHaveAccount/" + params.id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            
+            students = checkExistStudentInStudentsList(students, listAllStudentOfClass, result);
+            console.log(students);
+            const listData = [];
+            students.map((student, index) => {
+                listData.push(
+                <tbody key={student.studentid} className={student.haveAccount? "" : "dontHaveAccount"}>
+                    <tr>
+                        <td>{student.studentid} - {student.name}
+                        
+                            <br></br>
+                            <div hidden={student.haveAccount? false : true}>
+                                <button  className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}} >Show</button>
+                            </div>
+                        </td>
+                        {renderRow(student.grade, listAssignMent, student.studentid)}
+                    </tr>
+                </tbody>
+            )
+            })
+            setDataTable(listData);
+            
         })
-        setDataTable(listData);
+        .catch(error => console.log('error', error));
+        
     }
     const checkExistsStudentInGradeBoard = (listStudent, student) => {
         for (let index = 0; index < listStudent.length; index++) {
@@ -157,7 +189,6 @@ const Grades = () => {
         .then(response => response.json())
         .then(result => {
             
-            console.log(result)
             let listStudent = [];
             for (let index = 0; index < result.length; index++) {
                 const temp = {
