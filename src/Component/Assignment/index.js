@@ -19,14 +19,23 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
     const [year, setYear] = useState("2020");
     const params = useParams();
 
-    const topicOnChangeHandler = (e) => setTopic(e.target.value);
-    const gradeOnChangeHandler = (e) => setGrade(e.target.value);
-    const descriptionOnChangeHandler = (e) => setDescription(e.target.value);
-    const minusOnChangeHandler = (e) => setMinus(e.target.value);
-    const hourOnChangeHandler = (e) => setHour(e.target.value);
-    const dayOnChangeHandler = (e) => setDay(e.target.value);
-    const monthOnChangeHandler = (e) => setMonth(e.target.value);
-    const yearOnChangeHandler = (e) => setYear(e.target.value);
+    const [topicUpdate, setTopicUpdate] = useState(dataAssignment.topic);
+    const [gradeUpdate, setGradeUpdate] = useState(dataAssignment.grade);
+    const [descriptionUpdate, setDescriptionUpdate] = useState(dataAssignment.description);
+    const [minusUpdate, setMinusUpdate] = useState("0");
+    const [hourUpdate, setHourUpdate] = useState("0");
+    const [dayUpdate, setDayUpdate] = useState("1");
+    const [monthUpdate, setMonthUpdate] = useState("1");
+    const [yearUpdate, setYearUpdate] = useState("2020");
+
+    const topicOnChangeHandler = (e) => setTopicUpdate(e.target.value);
+    const gradeOnChangeHandler = (e) => setGradeUpdate(e.target.value);
+    const descriptionOnChangeHandler = (e) => setDescriptionUpdate(e.target.value);
+    const minusOnChangeHandler = (e) => setMinusUpdate(e.target.value);
+    const hourOnChangeHandler = (e) => setHourUpdate(e.target.value);
+    const dayOnChangeHandler = (e) => setDayUpdate(e.target.value);
+    const monthOnChangeHandler = (e) => setMonthUpdate(e.target.value);
+    const yearOnChangeHandler = (e) => setYearUpdate(e.target.value);
 	const onHandleModalClose = () => setShow(false);
 	const onHandleModalShow = () => setShow(true);
 
@@ -77,10 +86,10 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
         myHeaders.append("Content-Type", "application/json");
 
         var raw = JSON.stringify({
-            "topic": topic,
-            "description": description,
-            "deadline": minus + ":" + hour + " " + day + "-" + month + "-" + year,
-            "grade": grade
+            "topic": topicUpdate,
+            "description": descriptionUpdate,
+            "deadline": minusUpdate + ":" + hourUpdate + " " + dayUpdate + "-" + monthUpdate + "-" + yearUpdate,
+            "grade": gradeUpdate
         });
 
         var requestOptions = {
@@ -95,7 +104,10 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
         .then(result => {
             //onUpdateSuccess();
             alert("Assignment Updated!");
-            window.location.reload();
+            setTopic(topicUpdate);
+            setDescription(descriptionUpdate);
+            setGrade(gradeUpdate);
+            onHandleModalClose();
         })
         .catch(error => console.log('error', error));
     }
@@ -103,11 +115,11 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
     return( 
     <div>
     <Card className="assignment mx-auto">
-        <Card.Header as= "h2" className="head-center"> {dataAssignment.topic} </Card.Header>
+        <Card.Header as= "h2" className="head-center"> {topic} </Card.Header>
         <Card.Body>            
             {/* <Card.Title> Abc </Card.Title> */}
-            <Card.Text> {dataAssignment.description} </Card.Text> 
-            <Card.Text> Point: {dataAssignment.grade} / 10</Card.Text>   
+            <Card.Text> {description} </Card.Text> 
+            <Card.Text> Point: {grade} / 10</Card.Text>   
             <Card.Text> {dataAssignment.deadline} </Card.Text>   
         </Card.Body>
         <Card.Footer className="text-center">
@@ -133,21 +145,21 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
                             <Col sm={10}>
                                 <Form.Group className="mb-3">
                                     <Form.Label> Topic </Form.Label>
-                                    <Form.Control type="text" defaultValue={dataAssignment.topic} 
+                                    <Form.Control type="text" defaultValue={topicUpdate} 
                                                 onChange={topicOnChangeHandler} />
                                 </Form.Group>
                             </Col>
                             <Col sm={2}>
                             <Form.Group className="mb-3">
                                 <Form.Label> Grade </Form.Label>
-                                <Form.Control type="number" defaultValue={dataAssignment.grade}
+                                <Form.Control type="number" defaultValue={gradeUpdate}
                                             onChange={gradeOnChangeHandler} />
                             </Form.Group>
                             </Col>
                         </Row>
                         <Form.Group className="mb-3">
                             <Form.Label> Description </Form.Label>
-                            <Form.Control as="textarea" defaultValue={dataAssignment.description}
+                            <Form.Control as="textarea" defaultValue={descriptionUpdate}
                                         style={{ height: '100px' }}
                                         onChange={descriptionOnChangeHandler} />
                         </Form.Group>
