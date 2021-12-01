@@ -117,6 +117,7 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
                 <button className="btn btn-info btnDeleteAssign" 
                         onClick={onHandleModalShow}> Update </button>
                 <AsyncDownloadButton assignId={dataAssignment.id}/>
+                <a className="btn btn-success m-2" href="/Template/grades_assignment_template.xlsx"> Download Template Student List </a>
             </div>
         </Card.Footer>
 

@@ -10,12 +10,16 @@ import { Grid } from "@material-ui/core";
 import PersonIcon from '@mui/icons-material/Person';
 import { green } from '@mui/material/colors';
 import { CSVLink } from "react-csv";
+import { Modal, Form } from 'react-bootstrap';
+import * as XLSX from 'xlsx';
 
 export default function MembersList() {
     const [students, setStudents] = useState([]);
     const [teachers, setTeachers] = useState([]);
     const [loadFirst, setLoadFirst] = useState(true);
     const [role, setRole] = useState("student");
+    const [fileData, setFileData] = useState("student");
+    const [show, setShow] = useState(false);
     let params = useParams();
 
     const getMembers = async (idClass) => {
@@ -78,6 +82,33 @@ export default function MembersList() {
         .catch(error => console.log('error', error));
     }
 
+    const uploadFile = () => {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+        myHeaders.append("Content-Type", "application/json");
+
+        console.log(fileData);
+
+        var raw = JSON.stringify({
+            "listStudent": fileData
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch(process.env.REACT_APP_API_URL + "classes/uploadListMember/" + params.id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            alert(result.message);
+        })
+        .catch(error => console.log('error', error));
+    }
+
     if (loadFirst) {
         getMembers(params.id);
         getRole();
@@ -99,14 +130,64 @@ export default function MembersList() {
     const detailURL = '/classes/detail/' + params.id;
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
 
+	const onHandleModalClose = () => setShow(false);
+	const onHandleModalShow = () => setShow(true);
+    const fileOnChangeHandler = (e) => {
+        let file = e.target.files[0];
+
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+
+        fileReader.onload = (e) => { 
+            const bstr = e.target.result;
+
+            const wb = XLSX.read(bstr, {type:'binary'});
+
+            const wsname = wb.SheetNames[0];
+
+            const ws = wb.Sheets[wsname];
+
+            let headers = {};
+            let data = [];  
+
+            for(let i in ws) {
+                if(i[0] === '!') continue;
+
+                let col = i.substring(0,1);
+                let row = parseInt(i.substring(1));
+                let value = ws[i].v;
+
+                if(row === 1) {
+                    if (value === "Student ID") {
+                        headers[col] = "id";
+                    } else if (value === "Fullname"){
+                        headers[col] = "name";
+                    } else {
+                        headers[col] = value.toLowerCase();
+                    }
+                    continue;
+                }
+
+                if(!data[row]) data[row]={};
+                data[row][headers[col]] = value;
+            }
+
+            data.shift();
+            data.shift();
+            setFileData(Array.from(data));
+            uploadFile();
+        };
+    };
+
     return (
       <div>
           <Navbar bg="dark" variant="dark">
             <Navbar.Toggle />
 
             <div className="invitebtn" hidden={!(role === "teacher")}>
-                <CSVLink {...exportExcel}> Download Student List </CSVLink>
-                {/* <button className="btn btn-success" onClick={}> Invite </button> */}
+                <button className="btn btn-success m-2"> <CSVLink {...exportExcel}> Download Student List </CSVLink> </button>
+                <a className="btn btn-success m-2" href="/Template/list_student_template.xlsx"> Download Template Student List </a>
+                <button className="btn btn-success m-2" onClick={onHandleModalShow}> Upload </button> 
             </div>
 
             <Navbar.Collapse className="justify-content-end">
@@ -147,7 +228,27 @@ export default function MembersList() {
             </List>
             
         </Grid>
+        <Modal show={show} onHide={onHandleModalClose}>
+            <Modal.Header closeButton>
+            <Modal.Title> Upload Student List</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Group className="mb-3">
+                    <Form.Label> File </Form.Label>
+                    <Form.Control type="file" 
+                            onChange={fileOnChangeHandler}/>
+                </Form.Group>
+
+            </Modal.Body>
+            <Modal.Footer>
+                <div className="footer-createAssignBtn text-center">
+                    <button className="btn btn-dark btnCreateAssign" onClick={uploadFile}> Upload </button>
+                    <button className="btn btn-success addClassButton" onClick={onHandleModalClose}> Close </button>
+                </div>
+            </Modal.Footer>
+        </Modal>
+
       </div>
-    
+
   );
 }
