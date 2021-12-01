@@ -79,7 +79,7 @@ const Grades = () => {
             }
         }
         totalGrade = totalGrade / total;
-        listData.push(<td>{totalGrade}</td>)
+        listData.push(<td>{totalGrade.toFixed(2)}</td>)
 
         return listData;
     }

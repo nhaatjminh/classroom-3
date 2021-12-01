@@ -43,7 +43,7 @@ const GradeOfStudent = ({dataGrade, onUpdateGrade}) => {
     
     return(
         <td>
-            <input className="inputGrade" defaultValue={grade} onChange={onChangeHandler} onBlur={onBlurHandler}/>
+            <input type="number" className="inputGrade" defaultValue={grade} onChange={onChangeHandler} onBlur={onBlurHandler}/>
         </td>
         )
 }
