@@ -49,6 +49,7 @@ const Grades = () => {
     const detailURL = '/classes/detail/' + params.id;
     //5th
     const renderRow = (grade, listAssignMent , studentid) => {
+        
         var listData = [];
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
@@ -59,7 +60,6 @@ const Grades = () => {
             for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
                 if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
                     dataGrade.grade= grade[indexGrade].grade
-                    
                     listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
                     flag = true;
                 }
@@ -68,7 +68,6 @@ const Grades = () => {
                 dataGrade.grade= null
                 listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
             }
-            console.log(dataGrade)
         }
 
         return listData;
@@ -117,13 +116,15 @@ const Grades = () => {
     }
     //4th
     const renderTableData = (students, listAssignMent, listAllStudentOfClass) => {
+        
         students = checkExistStudentInStudentsList(students, listAllStudentOfClass);
+        
         const listData = [];
         students.map((student, index) => {
             listData.push(
             <tbody key={student.studentid}>
                 <tr>
-                    <td>{student.name}
+                    <td>{student.studentid} - {student.name}
                     
                         <br></br>
                         <button className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}}>Show</button>
@@ -155,12 +156,15 @@ const Grades = () => {
         fetch(process.env.REACT_APP_API_URL + "grades/" + params.id, requestOptions)
         .then(response => response.json())
         .then(result => {
+            
+            console.log(result)
             let listStudent = [];
             for (let index = 0; index < result.length; index++) {
                 const temp = {
                     studentid: result[index].student_id,
                     name: result[index].name
                 }
+                
                 if (checkExistsStudentInGradeBoard(listStudent, temp)) {
                     continue;
                 };
@@ -178,6 +182,7 @@ const Grades = () => {
                 temp.grade = grade;
                 listStudent.push(temp);
             }
+            
             getMembers(params.id, listStudent, listAssignMent);
         })
         .catch(error => {
