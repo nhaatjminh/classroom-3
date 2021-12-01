@@ -12,7 +12,7 @@ const GradeOfStudent = ({dataGrade}) => {
 
     const onBlurHandler = (e) => {
         e.preventDefault();
-        console.log(dataGrade.student_id + ": " + grade);
+        console.log(dataGrade.student_id + ": " + grade + ": "+ dataGrade.assignment_id);
 
         var myHeaders = new Headers();
         myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
@@ -20,7 +20,7 @@ const GradeOfStudent = ({dataGrade}) => {
 
 
         var raw = JSON.stringify({
-            "student_id": 15,
+            "student_id": dataGrade.student_id,
             "grade": grade
         });
 
