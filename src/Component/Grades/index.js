@@ -5,14 +5,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Navbar, Modal } from "react-bootstrap"
 import './index.css'
 import GradeOfStudent from '../GradeOfStudent';
-import Select from '@mui/material/Select';
-import {Typography} from '@material-ui/core';
+
 const Grades = () => {
     const [loadFirst, setLoadFirst] = useState(true);
     const [role, setRole] = useState("student");
     const [dataTable, setDataTable] = useState([]);
     const [header, setHeader] = useState([]);
     const [showDialog, setShowDialog] = useState(false);
+    const [isUpdate, setIsUpdate] = useState(false);
     const [dataMappingStudent, setDataMappingStudent] = useState({
         studentID: '',
         name: '',
@@ -47,28 +47,39 @@ const Grades = () => {
     const listAssignmentURL = '/classes/detail/' + params.id + "/assignment";
     const memberURL = '/classes/members/' + params.id;
     const detailURL = '/classes/detail/' + params.id;
+
+    const onUpdateGrade = () => {
+        setIsUpdate(true);
+    }
+
     //5th
     const renderRow = (grade, listAssignMent , studentid) => {
         console.log(grade);
         var listData = [];
+        var totalGrade = 0;
+        var total = 0;
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
             let dataGrade = {
                 assignment_id: listAssignMent[index].id,
                 student_id: studentid
             };
+            total += listAssignMent[index].grade;
             for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
                 if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
                     dataGrade.grade= grade[indexGrade].grade
-                    listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
+                    listData.push(<GradeOfStudent key={index} dataGrade={dataGrade} onUpdateGrade={onUpdateGrade}></GradeOfStudent>)
                     flag = true;
+                    totalGrade += grade[indexGrade].grade * listAssignMent[index].grade;
                 }
             }
             if (!flag) {
                 dataGrade.grade= null
-                listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
+                listData.push(<GradeOfStudent key={index} dataGrade={dataGrade} onUpdateGrade={onUpdateGrade}></GradeOfStudent>)
             }
         }
+        totalGrade = totalGrade / total;
+        listData.push(<td>{totalGrade}</td>)
 
         return listData;
     }
@@ -144,6 +155,7 @@ const Grades = () => {
         .then(result => {
             
             students = checkExistStudentInStudentsList(students, listAllStudentOfClass, result);
+            console.log("student:");
             console.log(students);
             const listData = [];
             students.map((student, index) => {
@@ -246,7 +258,7 @@ const Grades = () => {
                     <br></br>
                     {ele.grade}/{totalGrade}
                 </th>))
-                header.push(<th className="w-100"></th>)
+                header.push(<th className="total"> Total grade </th>)
                 
                 loadGradeBoard(result);
             }
@@ -297,6 +309,11 @@ const Grades = () => {
         getRole();
         setLoadFirst(false);
         
+    }
+
+    if (isUpdate) {
+        getListAssignment();
+        setIsUpdate(false);
     }
     
     return(

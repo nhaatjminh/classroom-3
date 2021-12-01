@@ -3,7 +3,7 @@ import React, { useState} from 'react';
 import { useParams} from "react-router-dom"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css'
-const GradeOfStudent = ({dataGrade}) => {
+const GradeOfStudent = ({dataGrade, onUpdateGrade}) => {
     
     const [grade, setGrade] = useState(dataGrade.grade);
     const params = useParams();
@@ -34,17 +34,17 @@ const GradeOfStudent = ({dataGrade}) => {
         fetch(process.env.REACT_APP_API_URL + "grades/update/" + params.id + "/" + dataGrade.assignment_id, requestOptions)
         .then(response => response.json())
         .then(result => {
-            console.log("update grade successful");
         })
         .catch(error => console.log('error', error));
+
+        
+        onUpdateGrade();
     }
     
     return(
         <td>
             <input className="inputGrade" defaultValue={grade} onChange={onChangeHandler} onBlur={onBlurHandler}/>
         </td>
-            
-            // <td>{dataGrade}</td>
         )
 }
 export default GradeOfStudent;
