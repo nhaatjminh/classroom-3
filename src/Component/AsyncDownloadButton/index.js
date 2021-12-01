@@ -7,19 +7,19 @@ const AsyncDownloadButton = (assign) => {
 
     const [dataForDownload, setDataForDownload] = useState([]);
     const [downloadReady, setDownloadReady] = useState(false);
-    
-    useEffect(() => {
-        if (csvLink && csvLink.current && downloadReady) {
-            csvLink.current.link.click();
-            setDownloadReady(false);
-        }
-    }, [downloadReady]);
 
     const csvLink = React.createRef();
     const headers = [
         { label: 'Student ID', key: 'student_id' },
         { label: 'Grade', key: 'grade' }
     ]
+
+    useEffect(() => {
+        if (csvLink && csvLink.current && downloadReady) {
+            csvLink.current.link.click();
+            setDownloadReady(false);
+        }
+    }, [downloadReady]);
 
     const downloadAssignmentGrades = () => {
         let myHeaders = new Headers();

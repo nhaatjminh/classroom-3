@@ -3,12 +3,13 @@ import React, { useState } from 'react';
 import { useParams } from "react-router-dom";
 import { Form, Modal, Row, Col  } from 'react-bootstrap';
 import { Card} from 'react-bootstrap';
-// import {Link} from 'react-router-dom';
 import './index.css';
 import AsyncDownloadButton from '../AsyncDownloadButton';
+import * as XLSX from 'xlsx';
 
 const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) => {
     const [show, setShow] = useState(false);
+    const [uploadModalShow, setUploadModalShow] = useState(false);
     const [topic, setTopic] = useState(dataAssignment.topic);
     const [grade, setGrade] = useState(dataAssignment.grade);
     const [description, setDescription] = useState(dataAssignment.description);
@@ -17,6 +18,7 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
     const [day, setDay] = useState("1");
     const [month, setMonth] = useState("1");
     const [year, setYear] = useState("2020");
+    const [fileData, setFileData] = useState("student");
     const params = useParams();
 
     const [topicUpdate, setTopicUpdate] = useState(dataAssignment.topic);
@@ -38,6 +40,82 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
     const yearOnChangeHandler = (e) => setYearUpdate(e.target.value);
 	const onHandleModalClose = () => setShow(false);
 	const onHandleModalShow = () => setShow(true);
+    const onHandleUploadModalClose = () => setUploadModalShow(false);
+	const onHandleUploadModalShow = () => setUploadModalShow(true);
+    const fileOnChangeHandler = (e) => {
+        let file = e.target.files[0];
+
+        const fileReader = new FileReader();
+        fileReader.readAsArrayBuffer(file);
+
+        fileReader.onload = (e) => { 
+            const bstr = e.target.result;
+
+            const wb = XLSX.read(bstr, {type:'binary'});
+
+            const wsname = wb.SheetNames[0];
+
+            const ws = wb.Sheets[wsname];
+
+            let headers = {};
+            let data = [];  
+
+            for(let i in ws) {
+                if(i[0] === '!') continue;
+
+                let col = i.substring(0,1);
+                let row = parseInt(i.substring(1));
+                let value = ws[i].v;
+
+                if(row === 1) {
+                    if (value === "Student ID") {
+                        headers[col] = "id";
+                    } else if (value === "Grade"){
+                        headers[col] = "grade";
+                    } else {
+                        headers[col] = value.toLowerCase();
+                    }
+                    continue;
+                }
+
+                if(!data[row]) data[row]={};
+                data[row][headers[col]] = value;
+            }
+
+            data.shift();
+            data.shift();
+            setFileData(Array.from(data));
+            uploadFile();
+        };
+    };
+
+    const uploadFile = () => {
+        var myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + localStorage.getItem("token"));
+        myHeaders.append("Content-Type", "application/json");
+
+        console.log(fileData);
+
+        var raw = JSON.stringify({
+            "listGrades": fileData
+        });
+
+        var requestOptions = {
+            method: 'POST',
+            headers: myHeaders,
+            body: raw,
+            redirect: 'follow'
+        };
+
+        fetch(process.env.REACT_APP_API_URL + "grades/uploadGrades/" + params.id + "/" + dataAssignment.id, requestOptions)
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+            alert(result.message);
+            setUploadModalShow(false)
+        })
+        .catch(error => console.log('error', error));
+    }
 
     const getNumberOptionForCombobox = (from, to) => {
         let options = [];
@@ -129,6 +207,8 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
                 <button className="btn btn-info btnDeleteAssign" 
                         onClick={onHandleModalShow}> Update </button>
                 <AsyncDownloadButton assignId={dataAssignment.id}/>
+                <button className="btn btn-success m-2" 
+                        onClick={onHandleUploadModalShow}> Upload grades file </button>
                 <a className="btn btn-success m-2" href="/Template/grades_assignment_template.xlsx"> Download Template Student List </a>
             </div>
         </Card.Footer>
@@ -215,6 +295,27 @@ const Assignment = ({dataAssignment, onDeleteSuccess, onUpdateSuccess, role}) =>
                     </div>
                 </Modal.Footer>
     </Modal>
+
+        <Modal show={uploadModalShow} onHide={onHandleUploadModalClose}>
+            <Modal.Header closeButton>
+            <Modal.Title> Upload Student List</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form.Group className="mb-3">
+                    <Form.Label> File </Form.Label>
+                    <Form.Control type="file" 
+                            onChange={fileOnChangeHandler}/>
+                </Form.Group>
+
+            </Modal.Body>
+            <Modal.Footer>
+                <div className="footer-createAssignBtn text-center">
+                    <button className="btn btn-dark btnCreateAssign" onClick={uploadFile}> Upload </button>
+                    <button className="btn btn-success addClassButton" onClick={onHandleUploadModalClose}> Close </button>
+                </div>
+            </Modal.Footer>
+        </Modal>
+    
     </div>
     )
 };
