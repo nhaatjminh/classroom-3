@@ -48,35 +48,26 @@ const Grades = () => {
     const memberURL = '/classes/members/' + params.id;
     const detailURL = '/classes/detail/' + params.id;
     //5th
-    const renderRow = (grade, listAssignMent) => {
-        console.log("ok " +grade);
+    const renderRow = (grade, listAssignMent , studentid) => {
+        
         var listData = [];
         for (let index = 0; index <listAssignMent.length; index++) {   
             let flag = false;
-            let dataGrade = {};
+            let dataGrade = {
+                assignment_id: listAssignMent[index].id,
+                student_id: studentid
+            };
             for (let indexGrade = 0; indexGrade < grade.length; indexGrade++) {
                 if (grade[indexGrade].assignmentID === listAssignMent[index].id) {
-                    dataGrade = {
-                        assignment_id: grade[indexGrade].assignmentID,
-                        student_id: grade[indexGrade].studentID,
-                        grade: grade[indexGrade].grade
-                    }
-                    
+                    dataGrade.grade= grade[indexGrade].grade
                     listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
                     flag = true;
                 }
-                if (!flag && indexGrade === grade.length - 1) {
-                    dataGrade = {
-                        assignment_id: listAssignMent[indexGrade].assignmentID,
-                        student_id: listAssignMent[indexGrade].studentID,
-                        grade: null
-                    }
-                }
             }
             if (!flag) {
+                dataGrade.grade= null
                 listData.push(<GradeOfStudent key={index} dataGrade={dataGrade}></GradeOfStudent>)
             }
-            
         }
 
         return listData;
@@ -125,18 +116,20 @@ const Grades = () => {
     }
     //4th
     const renderTableData = (students, listAssignMent, listAllStudentOfClass) => {
+        
         students = checkExistStudentInStudentsList(students, listAllStudentOfClass);
+        
         const listData = [];
         students.map((student, index) => {
             listData.push(
             <tbody key={student.studentid}>
                 <tr>
-                    <td>{student.name}
+                    <td>{student.studentid} - {student.name}
                     
                         <br></br>
                         <button className="btn-showIn4" onClick={ () => {onHandleShow(student.studentid)}}>Show</button>
                     </td>
-                    {renderRow(student.grade, listAssignMent)}
+                    {renderRow(student.grade, listAssignMent, student.studentid)}
                 </tr>
             </tbody>
           )
@@ -163,12 +156,15 @@ const Grades = () => {
         fetch(process.env.REACT_APP_API_URL + "grades/" + params.id, requestOptions)
         .then(response => response.json())
         .then(result => {
+            
+            console.log(result)
             let listStudent = [];
             for (let index = 0; index < result.length; index++) {
                 const temp = {
                     studentid: result[index].student_id,
                     name: result[index].name
                 }
+                
                 if (checkExistsStudentInGradeBoard(listStudent, temp)) {
                     continue;
                 };
@@ -186,6 +182,7 @@ const Grades = () => {
                 temp.grade = grade;
                 listStudent.push(temp);
             }
+            
             getMembers(params.id, listStudent, listAssignMent);
         })
         .catch(error => {
