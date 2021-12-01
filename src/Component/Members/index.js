@@ -100,7 +100,7 @@ export default function MembersList() {
             redirect: 'follow'
         };
 
-        fetch(process.env.REACT_APP_API_URL + "classes/uploadListMember/" + params.id, requestOptions)
+        fetch(process.env.REACT_APP_API_URL + "classes/uploadListStudent/" + params.id, requestOptions)
         .then(response => response.json())
         .then(result => {
             console.log(result);
